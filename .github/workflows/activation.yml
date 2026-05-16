@@ -12,7 +12,7 @@ jobs:
         with:
           unityVersion: 6000.4.6f1 # замени на свою версию Unity
       - name: Expose as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.getManualLicenseFile.outputs.filePath }}
           path: ${{ steps.getManualLicenseFile.outputs.filePath }}
