@@ -49,6 +49,15 @@ jobs:
           ref: main
           fetch-depth: 0
 
+      # Кеширование папки Library для ускорения повторных сборок
+      - name: Cache Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ runner.os }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-${{ runner.os }}-
+
       - name: Build Unity project
         uses: game-ci/unity-builder@v4
         env:
@@ -62,13 +71,13 @@ jobs:
       - name: Zip the build
         run: |
           cd build/StandaloneWindows64
-          zip -r ../../GameBuild.zip .
+          zip -r ../../KindomsOfKing.zip .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: GameBuild-${{ needs.bump_version.outputs.version }}
-          path: GameBuild.zip
+          name: KindomsOfKing-${{ needs.bump_version.outputs.version }}
+          path: KindomsOfKing.zip
 
   # === Создание релиза ===
   release:
@@ -79,13 +88,13 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: GameBuild-${{ needs.build.outputs.version }}
+          name: KindomsOfKing-${{ needs.build.outputs.version }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ needs.build.outputs.version }}
           name: Release v${{ needs.build.outputs.version }}
-          files: GameBuild.zip
+          files: KindomsOfKing.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
