@@ -13,7 +13,7 @@ jobs:
       version: ${{ steps.set_version.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5          # ← обновлено до v5 (Node.js 24)
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 2
@@ -44,14 +44,14 @@ jobs:
       version: ${{ needs.bump_version.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5          # ← v5
         with:
           ref: main
           fetch-depth: 0
 
-      # Кеширование папки Library для ускорения повторных сборок
+      # Кеширование Library
       - name: Cache Library
-        uses: actions/cache@v4
+        uses: actions/cache@v4            # уже на Node.js 24
         with:
           path: Library
           key: Library-${{ runner.os }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
@@ -74,7 +74,7 @@ jobs:
           zip -r ../../KindomsOfKing.zip .
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4   # ← Node.js 24
         with:
           name: KindomsOfKing-${{ needs.bump_version.outputs.version }}
           path: KindomsOfKing.zip
@@ -86,12 +86,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4 # ← Node.js 24
         with:
           name: KindomsOfKing-${{ needs.build.outputs.version }}
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v4  # ← v4 (Node.js 24)
         with:
           tag_name: v${{ needs.build.outputs.version }}
           name: Release v${{ needs.build.outputs.version }}
