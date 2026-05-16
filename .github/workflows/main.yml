@@ -21,23 +21,18 @@ jobs:
       - name: Bump patch version
         id: set_version
         run: |
-          # Читаем текущую версию из ProjectSettings/ProjectSettings.asset
-          CURRENT=$(grep -Po '"bundleVersion:\K[^"]+' ProjectSettings/ProjectSettings.asset)
+          CURRENT=$(grep -Po 'bundleVersion: \K.+' ProjectSettings/ProjectSettings.asset)
           echo "Current version: $CURRENT"
-          # Разбиваем на major.minor.patch
           IFS='.' read -r major minor patch <<< "$CURRENT"
           NEW_PATCH=$((patch + 1))
           NEW_VERSION="$major.$minor.$NEW_PATCH"
           echo "New version: $NEW_VERSION"
-          # Заменяем версию в файле
           sed -i "s/bundleVersion: $CURRENT/bundleVersion: $NEW_VERSION/" ProjectSettings/ProjectSettings.asset
-          # Коммитим и пушим
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add ProjectSettings/ProjectSettings.asset
           git commit -m "Bump version to $NEW_VERSION [skip ci]"
           git push
-          # Сохраняем версию для следующих задач
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
   # === Сборка проекта ===
