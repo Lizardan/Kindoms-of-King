@@ -1,0 +1,96 @@
+name: Auto Build and Release
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  # === Повышение версии (bump patch) ===
+  bump_version:
+    name: Bump version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set_version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 2
+
+      - name: Bump patch version
+        id: set_version
+        run: |
+          # Читаем текущую версию из ProjectSettings/ProjectSettings.asset
+          CURRENT=$(grep -Po '"bundleVersion:\K[^"]+' ProjectSettings/ProjectSettings.asset)
+          echo "Current version: $CURRENT"
+          # Разбиваем на major.minor.patch
+          IFS='.' read -r major minor patch <<< "$CURRENT"
+          NEW_PATCH=$((patch + 1))
+          NEW_VERSION="$major.$minor.$NEW_PATCH"
+          echo "New version: $NEW_VERSION"
+          # Заменяем версию в файле
+          sed -i "s/bundleVersion: $CURRENT/bundleVersion: $NEW_VERSION/" ProjectSettings/ProjectSettings.asset
+          # Коммитим и пушим
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ProjectSettings/ProjectSettings.asset
+          git commit -m "Bump version to $NEW_VERSION [skip ci]"
+          git push
+          # Сохраняем версию для следующих задач
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+  # === Сборка проекта ===
+  build:
+    name: Build for Windows
+    needs: bump_version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ needs.bump_version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Build Unity project
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: StandaloneWindows64
+          buildName: Kindoms of King
+
+      - name: Zip the build
+        run: |
+          cd build/StandaloneWindows64
+          zip -r ../../GameBuild.zip .
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GameBuild-${{ needs.bump_version.outputs.version }}
+          path: GameBuild.zip
+
+  # === Создание релиза ===
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: GameBuild-${{ needs.build.outputs.version }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: v${{ needs.build.outputs.version }}
+          name: Release v${{ needs.build.outputs.version }}
+          files: GameBuild.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
