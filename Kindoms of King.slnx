@@ -1,0 +1,6 @@
+﻿<Solution>
+  <Project Path="PurrNetLobbySetup.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="PurrNetLobby_Editor.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+</Solution>

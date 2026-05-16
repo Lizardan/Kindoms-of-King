@@ -1,0 +1,22 @@
+{
+  "version": "1.0",
+  "skills": [
+    {
+      "id": "karpathy-guidelines",
+      "name": "Karpathy Guidelines",
+      "description": "Behavioral guidelines to reduce common LLM coding mistakes. Use when writing, reviewing, or refactoring code to avoid overcomplication, make surgical changes, surface assumptions, and define verifiable success criteria.",
+      "author": "Andrej Karpathy",
+      "version": "1.0.0",
+      "license": "MIT",
+      "enabled": true,
+      "path": "./skills/karpathy-guidelines/skill.json",
+      "activation": {
+        "modes": ["code", "architect", "debug", "ask"],
+        "triggers": ["writing-code", "code-review", "refactoring", "planning"]
+      },
+      "files": [
+        "./skills/karpathy-guidelines/SKILL.md"
+      ]
+    }
+  ]
+}
