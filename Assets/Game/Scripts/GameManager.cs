@@ -18,10 +18,37 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private TMP_InputField codeInputField;
     [SerializeField] private Button actionButton;
     [SerializeField] private TextMeshProUGUI buttonText;
-
     [SerializeField] private TextMeshProUGUI gameVersion;
 
+    [SerializeField] private Button ChangeSceneBtn;
+
     private const int REQUIRED_LENGTH = 6;
+
+    private void OnEnable()
+    {
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        UnityEngine.SceneManagement.SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, UnityEngine.SceneManagement.LoadSceneMode mode)
+    {
+        if (scene.name != "Boot")
+        {
+            UnityEngine.Debug.Log($"Сцена '{scene.name}' загружена! Выполняю действие...");
+            ChangeSceneBtn.gameObject.SetActive(true);
+        }
+    }
+
+
+    public void ChangeScene()
+    {
+        FindAnyObjectByType<SceneManager>().ChangeScene();
+    }
+
 
     string GetGlobalIP()
     {
@@ -45,17 +72,15 @@ public class GameManager : NetworkBehaviour
         gameVersion.text = $"v{Application.version}";
     }
 
-    [System.Obsolete]
     public void HostLocal()
     {
         udpTransport.address = "127.0.0.1";
         UnityEngine.Debug.Log("Хост локально с IP " + udpTransport.address);
         NetworkManager.main.StartHost();
 
-        FindObjectOfType<SceneManager>().ChangeScene();
+        ChangeScene();
     }
 
-    [System.Obsolete]
     public void Host()
     {
         if (string.IsNullOrEmpty(codeInputField.text.Trim()))
@@ -71,7 +96,7 @@ public class GameManager : NetworkBehaviour
             NetworkManager.main.StartClient();
         }
 
-        FindObjectOfType<SceneManager>().ChangeScene();
+        ChangeScene();
     }
 
     public void RestartApplication()

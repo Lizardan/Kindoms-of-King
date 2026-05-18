@@ -6,17 +6,13 @@ using UnityEngine.SceneManagement;
 public class SceneManager : NetworkBehaviour
 {
     [PurrScene] public string sceneToChange;
-
-    [ContextMenu("Change Scene")]
     public void ChangeScene()
     {
-
         PurrSceneSettings settings = new()
         {
             isPublic = true,
             mode = LoadSceneMode.Single
         };
-
         networkManager.sceneModule.LoadSceneAsync(sceneToChange, settings);
     }
 }
