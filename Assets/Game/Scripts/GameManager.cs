@@ -45,20 +45,17 @@ public class GameManager : NetworkBehaviour
         gameVersion.text = $"v{Application.version}";
     }
 
+    [System.Obsolete]
     public void HostLocal()
     {
         udpTransport.address = "127.0.0.1";
         UnityEngine.Debug.Log("Хост локально с IP " + udpTransport.address);
         NetworkManager.main.StartHost();
+
+        FindObjectOfType<SceneManager>().ChangeScene();
     }
 
-    public void RestartApplication()
-    {
-        string exePath = Application.dataPath.Replace("_Data", ".exe");
-        Process.Start(exePath);
-        Application.Quit();
-    }
-
+    [System.Obsolete]
     public void Host()
     {
         if (string.IsNullOrEmpty(codeInputField.text.Trim()))
@@ -73,6 +70,15 @@ public class GameManager : NetworkBehaviour
             UnityEngine.Debug.Log("Коннект с IP " + udpTransport.address);
             NetworkManager.main.StartClient();
         }
+
+        FindObjectOfType<SceneManager>().ChangeScene();
+    }
+
+    public void RestartApplication()
+    {
+        string exePath = Application.dataPath.Replace("_Data", ".exe");
+        Process.Start(exePath);
+        Application.Quit();
     }
 
     private void Update()

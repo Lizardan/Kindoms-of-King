@@ -1,7 +1,6 @@
 using PurrNet;
 using UnityEngine;
 
-[RequireComponent(typeof(Renderer))]
 public class PrcBox : NetworkBehaviour
 {
 
@@ -21,6 +20,6 @@ public class PrcBox : NetworkBehaviour
     [ObserversRpc]
     void SetColor(Color color)
     {
-        GetComponent<Renderer>().material.color = color;
+        //GetComponent<Renderer>().material.color = color;
     }
 }
