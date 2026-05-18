@@ -14,6 +14,8 @@ public class GameManager : NetworkBehaviour
     public PurrNet.Transports.UDPTransport udpTransport;
     public TMP_InputField MyJoinCode;
 
+    public GameObject Options;
+
     [Header("UI References")]
     [SerializeField] private TMP_InputField codeInputField;
     [SerializeField] private Button actionButton;
@@ -108,6 +110,12 @@ public class GameManager : NetworkBehaviour
 
     private void Update()
     {
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Options.SetActive(!Options.activeSelf);
+        }
+
         string code = codeInputField.text.Trim();
 
         if (string.IsNullOrEmpty(code))
